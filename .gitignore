@@ -1,1 +1,11 @@
 /.project
+/hooks/
+/node_modules/
+/platforms/
+/plugins/
+/scss/
+/.bowerrc
+/config.xml
+/gulpfile.js
+/ionic.project
+/package.json
