@@ -1,0 +1,33 @@
+<ion-view>
+    
+    <ion-nav-title>
+      Calendar View
+  	</ion-nav-title>
+  	
+  	<ion-content class="has-header">
+		<h1>Calendar View Content</h1>
+		
+		<button ng-click="alertEnsureInetConnection()">Open no inet alert</button>
+		
+
+		<button ng-click="getAllBasicPages()">getAllBasicPages</button>
+		
+				<button ng-click="getTestView()">getTestView</button>
+		
+		<ion-list>
+		  	<ion-item ng-repeat="item in list2" href="#/detail">
+				  <h2>{{item.node_title}}</h2>
+    				<p>{{item.body}}</p>	
+			</ion-item>
+		</ion-list>
+
+		<ion-list>
+		  	<ion-item ng-repeat="item in list" href="#/detail">
+				  <h2>{{item.title}}</h2>
+    				<p>{{item.created | date:'medium' }}</p>	
+			</ion-item>
+		</ion-list>
+		
+  	</ion-content>
+
+</ion-view>

@@ -1,11 +1,20 @@
 # HeadlessDrupalApp
 Ionic app for headless drupal
 
+
+1. create project
+
 ionic start headlessDrupalApp blank
 cd headlessDrupalApp
 ionic setup sass
 ionic platform add android
 
-cordova plugin add org.apache.cordova.network-information
+2. copy all folders but  the www and bower.json into prject
 
-bower install ngCordova --save
+3. update dependencies
+bower install
+
+done
+
+check plugins with 
+cordova plugin list
