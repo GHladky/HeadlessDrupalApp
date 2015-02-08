@@ -1,0 +1,27 @@
+<ion-view>
+    
+    <ion-nav-title>
+      Network
+  	</ion-nav-title>
+  	
+  	<ion-content class="has-header">
+	
+		<button class="button button-small button-assertive" ng-click="isOnline">
+		  isOnline
+		</button>
+		<button class="button button-large button-positive" ng-click="isOffline">
+		  isOffline
+		</button>
+		
+		<ion-list>
+		  <ion-item ng-repeat="event in firedNetworkEventList"
+					class="item-icon-left" >
+			<i class="icon ion-record" ng-class="event.name == '$cordovaNetwork:offline'?'assertive':'balanced'"></i>
+			<h2>{{event.name}}</h2> 
+			<p>{{event.date | date:'medium'}}</p>
+		  </ion-item>
+		</ion-list>
+
+  	</ion-content>
+
+</ion-view>

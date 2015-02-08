@@ -1,18 +1,14 @@
 /* Controllers of calendar component */
 //______________________________________________
 
-var calendarControllers = angular.module('calendar.controllers', ['apiServices']);
+var calendarControllers = angular.module('apiServicesControllers', ['drupalApiService']);
 
 /* Main calendar Controllers */
-calendarControllers.controller('calendarCtrl', 
-						   ['$scope', 'apiService',
+calendarControllers.controller('firstBasicTestsApiServiceCtrl', 
+						   ['$scope', 'firstBasicTestsApiService',
                     function($scope,   apiService) {
 	
-
-	console.log('in calendarCtrl'); 
-	
 	$scope.list = {};
-	$scope.list2 = {};
 	
 	
 	$scope.getTestView = function() {
@@ -47,5 +43,4 @@ calendarControllers.controller('calendarCtrl',
 				
 }]);
 
-/* Detail view calendar Controllers */
 
