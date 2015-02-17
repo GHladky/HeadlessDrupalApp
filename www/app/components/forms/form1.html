@@ -1,0 +1,63 @@
+<ion-view>
+    
+    <ion-nav-title>
+    first Basic Api Tests
+  	</ion-nav-title>
+  	
+  	<ion-content class="has-header">
+  	
+		<h1>SystemResource</h1>
+		
+		<b>lastTimeRequestToSystemConnect:</b>  {{lastTimeRequestToSystemConnect | date:'medium'}}<br/>
+		<b>lastResultRequestToSystemConnect:</b>  
+		<pre>
+			{{ lastResultRequestToSystemConnect | json}}
+		</pre>
+		
+		<button class="button button-small" ng-click="callSystemRecourceConncet()">call SystemRecource.conncet</button>
+		
+		<hr/>
+		
+		<h1>UserResource</h1>
+		
+		<b>loginData:<b/><b/>  
+		<pre>
+			{{loginData | json}}
+		</pre>
+		<form name="loginForm" class="css-form" novalidate>
+			<div class="list list-inset">
+				<label class="item item-input item-floating-label">
+			    	<span class="input-label">Username</span>
+			    	<!--@TODO remove ng-Init when publish  -->
+			    	<input type="text" ng-Init="loginData.username = 'admin'" placeholder="What is you username" name="name" ng-model="loginData.username">
+			  	</label>
+			  	<label class="item item-input item-floating-label">
+			    	<span class="input-label">Password</span>
+			    	<!--@TODO remove ng-Init when publish  -->
+			    	 <input type="password"  ng-Init="loginData.password = 'password'" placeholder="What is your password?" name="password" ng-model="loginData.password">
+			    	
+			  	</label>
+			  	<div class="error-container" >
+      				<small class="error">Error</small>
+      			</div>
+			  	 
+		        <button type="submit" class="button  button-block button-positive" ng-click="callUserResourceLogin(loginData)">call UserResourceLogin.login</button>
+				<button class="button">Forgot Pasword?</button>
+					
+				<button type="submit" class="button button-balanced" ui-sref="app.profile.register">Register</button>
+	
+			</div>
+		</form>
+		<b>lastTimeRequestToUserResourceLogin:</b> {{lastTimeRequestToUserResourceLogin | date:'medium'}}<br/>
+		<b>lastResultRequestToUserResourceLogin:</b>
+		<pre>
+			{{ lastResultRequestToUserResourceLogin | json}}
+		</pre>
+		
+		<hr/>
+		
+		
+		
+  	</ion-content>
+
+</ion-view>

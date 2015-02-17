@@ -4,9 +4,9 @@ var headlessDrupalApp = angular.module('headlessDrupalApp', [ 'ionic',
                                                           //root controllers
                                                           'appControllers', 
                                                           //global modules
-													
+                                                         'ngMessages',
 														  //components
-														  'overviewControllers', 'networkControllers', 'apiServicesControllers'
+														  'overviewControllers', 'networkControllers',  'formControllers', 'apiServicesControllers'
 														]);
 	    
 headlessDrupalApp.run(function($ionicPlatform ) {
@@ -61,7 +61,7 @@ headlessDrupalApp.config(
 		    }
 	  })
 	  
-	   //States for the network page
+	  //States for the network page
 	  //______________________________________________
 	  .state('app.network', {
 	    url: '/network',
@@ -73,23 +73,106 @@ headlessDrupalApp.config(
 		    }
 	  })
 	 
-	  /*
-	   //States for the start page
-	  //______________________________________________
-	  .state('app.api-services', {
-	    url: '/api-services',
-	    abstract: true,
-	  })
 	  
-	   .state('app.api-services', {
-	    url: '/api-services',
+	  
+	  //Abstract states for the form pages
+	  //______________________________________________
+	  .state('app.form', {
+	    url: '/form',
+	    abstract: true,
 	    views: {
 		      'mainContent': {
-		        templateUrl: 'app/components/api-services/firstBasicTests.html',
-		        controller:  'firstBasicTestsApiServiceCtrl' 
+		    	template : '<ion-nav-view name="formContent"></ion-nav-view>',
 		      }
 		    }
-	   })*/
+	  })
+	  //States for the login tests page
+	  //______________________________________________
+	  .state('app.form.login', {
+	    url: '/login',
+	    views: {
+		      'formContent': {
+		    	  templateUrl: 'app/components/forms/login.html',
+		  		controller:  'loginCtrl' 
+		      }
+		    }
+	   })
+	  //States for the register tests page
+	  //______________________________________________
+	   .state('app.form.register', {
+	    url: '/register',
+	    views: {
+		      'fromContent': {
+		    	templateUrl: 'app/components/forms/register.html',
+		  		controller:  'registerCtrl' 
+		      }
+		    }
+		
+	   })
+	   //States for the forgot password module tests page
+	  //______________________________________________
+	   .state('app.form.forgotpassword', {
+	    url: '/forgotpassword',
+	    views: {
+		      'formContent': {
+		    	templateUrl: 'app/components/forms/forgotPassword.html',
+		  		controller:  'forgotpasswordCtrl' 
+		      }
+		    }
+		
+	   })
+	  
+	  //Abstract states for the api pages
+	  //______________________________________________
+	  .state('app.api', {
+	    url: '/api',
+	    abstract: true,
+	    views: {
+		      'mainContent': {
+		    	template : '<ion-nav-view name="apiContent"></ion-nav-view>',
+		      }
+		    }
+	  })
+	  //States for the basic api tests page
+	  //______________________________________________
+	  .state('app.api.basictests', {
+	    url: '/basictests',
+	    views: {
+		      'apiContent': {
+		    	  templateUrl: 'app/components/api-services/firstBasicTests.html',
+		  		controller:  'firstBasicTestsApiServiceCtrl' 
+		      }
+		    }
+	   })
+	  //States for the ng-recource tests page
+	  //______________________________________________
+	   .state('app.api.ngrecource1', {
+	    url: '/ngrecource1',
+	    views: {
+		      'apiContent': {
+		    	templateUrl: 'app/components/api-services/ngRecource1.html',
+		  		controller:  'ngRecourceCtrl' 
+		      }
+		    }
+		
+	   })
+	   //States for the drupalAPI module tests page
+	  //______________________________________________
+	   .state('app.api.drupalRecources', {
+	    url: '/drupalRecources',
+	    views: {
+		      'apiContent': {
+		    	templateUrl: 'app/components/api-services/drupalResourcesTest.html',
+		  		controller:  'drupalResourcesTestsCtrl' 
+		      }
+		    }
+		
+	   })
+	  
+	   
+	  
+	   
+	  
 	  ;
 
 }]);
