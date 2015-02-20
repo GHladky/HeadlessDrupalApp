@@ -3,6 +3,38 @@
 
 var drupalApiService = angular.module('drupalApiService', []);
 
+/*localStorage helper*/
+drupalApiService.factory('$localstorage', ['$window', function ($window) {
+    return {
+      setItem: function (key, value) {
+        $window.localStorage[key] = value;
+      },
+      getItem: function (key, emptyValue) {
+        emptyValue = (emptyValue) ? emptyValue : undefined;
+        return $window.localStorage[key] || emptyValue;
+      },
+      removeItem: function (key) {
+        delete $window.localStorage[key];
+      },
+      setObject: function (key, value) {
+        $window.localStorage[key] = JSON.stringify(value);
+      },
+      getObject: function (key, emptyValue) {
+        emptyValue = (emptyValue) ? emptyValue : '{}';
+        return JSON.parse($window.localStorage[key] || emptyValue);
+      },
+      removeObject: function (key) {
+        delete $window.localStorage[key];
+      },
+      clearAll: function (key) {
+        delete $window.localStorage[key];
+        $window.localStorage = [];
+      },
+    }
+  }])
+
+
+
 /* Constants for drupalApiService */
 drupalApiService.constant("drupalApiServiceConfig", {
    //
@@ -245,11 +277,11 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
 			method :'POST',
 			url : connectPath,
 			headers : {
-				"Content-Type": "application/json",
+				//"Accept" 		: "application/json",
+				"Content-Type"	: "application/json",
 			}
 		})
 		.success(function(data, status, headers, config){
-			
 			console.log('data' + JSON.stringify(data));
 			console.log('status' + status);
 			console.log('headers' + headers);
@@ -337,6 +369,9 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
 });
 
 
+
+
+
 /**
  * UserResource
  *
@@ -346,6 +381,32 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
  * 
 **/
 drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
+	
+	var storeLoginData = function (data) {
+		
+		$localstorage.setItem('uid', data.user.uid);
+        $localstorage.setObject('user', data.user);
+        $localstorage.setItem('username', username);
+        $localstorage.setItem('password', password);
+        $localstorage.setItem('token', data.token);
+        $localstorage.setItem('sessid', data.sessid);
+        $localstorage.setItem('session_name', data.session_name);
+        
+        $cookies[data.session_name] = data.sessid;
+	};
+	
+	var deleteLoginData = function () {
+		
+		$localstorage.setItem('uid', data.user.uid);
+        $localstorage.setObject('user', data.user);
+        $localstorage.setItem('username', username);
+        $localstorage.setItem('password', password);
+        $localstorage.setItem('token', data.token);
+        $localstorage.setItem('sessid', data.sessid);
+        $localstorage.setItem('session_name', data.session_name);
+        
+        $cookies[data.session_name] = data.sessid;
+	}
 	
 	/*
 	 * retrieve
@@ -473,25 +534,63 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 			
 		})
 		.success(function(data, status, headers, config){
-			
-			console.log('success'); 
-			console.log('data' + JSON.stringify(data));
-			console.log('status' + status);
-			console.log('headers' + headers);
-			console.log('config' + JSON.stringify(config));
-			
 			defer.resolve(data);
 		})
 		.error(function(data, status, headers, config){
-			
-			console.log('error');
-			console.log('data' + JSON.stringify(data));
-			console.log('status' + status);
-			console.log('headers' + headers);
-			console.log('config' + JSON.stringify(config));
-			
 			defer.reject(data);
 		});
+		
+		
+		
+		
+		 .success(function (data, status, headers, config) {
+             $http.defaults.headers.common.Authorization = data.token;
+             $http.defaults.headers.post['X-CSRF-TOKEN'] = data.token;
+             $http.defaults.withCredentials = true;
+             $http.defaults.headers.post['XSRF-TOKEN'] = data.token;
+            
+             var prevUserUid = $localstorage.getItem('uid') || '';
+             if (prevUserUid && (prevUserUid != data.user.uid)) {
+               $localstorage.removeItem('userSites' + prevUserUid);
+               $localstorage.removeItem('localData');
+             }
+
+             storeLoginData(data);
+             
+             authService.loginConfirmed(data, function (config) {
+               config.headers.Authorization = data.token;
+               return config;
+             });
+             defer.resolve(data);
+           })
+           .error(function (data, status, headers, config) {
+             $rootScope.$broadcast('event:auth-login-failed', status);
+             var error = "Login failed.";
+             if (status == 401) {
+               error = "Invalid Username or Password.";
+             } else if (status == 404) {
+               error = "Backend is not configured properly";
+             }
+             defer.reject(data);
+           });
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
 		return defer.promise;
 	};
