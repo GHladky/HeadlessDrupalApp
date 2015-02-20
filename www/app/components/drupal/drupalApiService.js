@@ -1,6 +1,5 @@
 /* Drupals api depending services*/
 //______________________________________________
-
 var drupalApiService = angular.module('drupalApiService', []);
 
 /*localStorage helper*/
@@ -32,7 +31,6 @@ drupalApiService.factory('$localstorage', ['$window', function ($window) {
       },
     }
   }])
-
 
 
 /* Constants for drupalApiService */
@@ -103,7 +101,8 @@ drupalApiService.constant("drupalApiServiceConfig", {
 
 /*Notification service for spi events*/
 //http://codingsmackdown.tv/blog/2013/04/29/hailing-all-frequencies-communicating-in-angularjs-with-the-pubsub-design-pattern/
-drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalApiServiceConfig', function ($rootScope, drupalApiServiceConfig) {
+drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalApiServiceConfig', 
+                                                 function ($rootScope,   drupalApiServiceConfig) {
    
 	//
 	// System resource
@@ -253,7 +252,7 @@ var drupalAPI = angular.module('drupalApi', ['config']);
  * your_api_endpoint/system/*|<mirror>|POST|Content-Type,Authorization|true
  * 
 **/
-drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) {
+drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig, UserResource) {
 	
 	/*
 	 * connect
@@ -270,9 +269,11 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
 	*/
 	var connect = function(){
 		var connectPath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.system + 'connect';
-		
 		var defer = $q.defer();
-		console.log(connectPath); 
+		
+		//set new token to headers
+		UserResource.token();
+		
 		$http({
 			method :'POST',
 			url : connectPath,
@@ -282,24 +283,14 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
 			}
 		})
 		.success(function(data, status, headers, config){
-			console.log('data' + JSON.stringify(data));
-			console.log('status' + status);
-			console.log('headers' + headers);
-			console.log('config' + JSON.stringify(config));
-			
 			defer.resolve(data);
 		})
 		.error(function(data, status, headers, config){
-			
-			console.log('data' + JSON.stringify(data));
-			console.log('status' + status);
-			console.log('headers' + headers);
-			console.log('config' + JSON.stringify(config));
-			
 			defer.reject(data);
 		});
 		
 		return defer.promise;
+
 	};
 	
 	/*
@@ -368,10 +359,6 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
 
 });
 
-
-
-
-
 /**
  * UserResource
  *
@@ -380,7 +367,7 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig) 
  * your_api_endpoint/user/*|<mirror>|GET, PUT, POST, DELETE|Content-Type,Authorization
  * 
 **/
-drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
+drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
 	
 	var storeLoginData = function (data) {
 		
@@ -523,7 +510,7 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 
 		$http({
 			method :'POST',
-			url : DrupalAPISettings.drupal_instance + DrupalAPISettings.api_endpoints.api_v1 + DrupalAPISettings.resources.user + 'login',
+			url : drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1 + drupalApiServiceConfig.resources.user + 'login',
 			headers : {
 				"Content-Type": "application/json"
 			},
@@ -533,17 +520,7 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 			},
 			
 		})
-		.success(function(data, status, headers, config){
-			defer.resolve(data);
-		})
-		.error(function(data, status, headers, config){
-			defer.reject(data);
-		});
-		
-		
-		
-		
-		 .success(function (data, status, headers, config) {
+		.success(function (data, status, headers, config) {
              $http.defaults.headers.common.Authorization = data.token;
              $http.defaults.headers.post['X-CSRF-TOKEN'] = data.token;
              $http.defaults.withCredentials = true;
@@ -562,40 +539,21 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
                return config;
              });
              defer.resolve(data);
-           })
-           .error(function (data, status, headers, config) {
+         })
+         .error(function (data, status, headers, config) {
              $rootScope.$broadcast('event:auth-login-failed', status);
              var error = "Login failed.";
              if (status == 401) {
                error = "Invalid Username or Password.";
              } else if (status == 404) {
                error = "Backend is not configured properly";
-             }
-             defer.reject(data);
-           });
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
+         }
+         defer.reject(data);
+         });
 		
 		return defer.promise;
 	};
 	
-
 	/*
 	 * logout
 	 * 
@@ -609,7 +567,24 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 	 * useage: UserResource.logout(username, password).then(yourSuccessCallback,yourErrorCallback);
 	 */
 	var logout = function() {
-		return;
+		 var defer = $q.defer(),
+         pathToLogout = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api + drupalApiServiceConfig.resources.user_logout;
+
+		 $http({
+		   method: 'POST',
+		   withCredentials: true,
+		   url: pathToLogout,
+		 })
+         .success(function (data, status, headers, config) {
+           deleteAuthData();
+           $rootScope.$broadcast('event:auth-logout-complete');
+           defer.resolve(data);
+         })
+         .error(function (data, status, headers, config) {
+           defer.reject(data);
+         });
+         
+         return defer.promise;
 	};
 
 	
@@ -626,7 +601,25 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 	 * useage: UserResource.token().then(yourSuccessCallback,yourErrorCallback);
 	 */
 	var token = function() {
-		return;
+		 var defer = $q.defer(),
+         pathToToken = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.resources.token;
+
+	     $http({
+	       url: pathToToken,
+	       method: 'GET',
+	       withCredentials: true
+	     })
+         .success(function (data) {
+           //$localstorage.setItem('token', data);
+           //$http.defaults.headers.common.Authorization = data;
+           //$http.defaults.headers.post['X-CSRF-TOKEN'] = data;
+           defer.resolve(data);
+         })
+         .error(function (data) {
+           defer.reject(data);
+         });
+
+	     return defer.promise;
 	};
 	
 	/*
@@ -752,7 +745,7 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 		//index : index,
 		login : login,
 		logout : logout,
-		//token : token,
+		token : token,
 		//request_new_password : request_new_password,
 		register : register,
 		//cancel : cancel,
@@ -761,6 +754,70 @@ drupalAPI.factory('UserResource', function($http, $q, DrupalAPISettings) {
 	};
 
 });
+
+/**
+ * ViewsResource
+ * 
+ * This service mirrors the Drupal views resource of the services 3.x module.
+ * To use this you have to set following line in your Drupal CORS module settings
+ * @TODO check
+ * your_api_endpoint/views/*|<mirror>|POST|Content-Type
+ * 
+**/
+drupalAPI.factory('ViewsResource', function($http, $q, drupalApiServiceConfig, UserResource) {
+	
+	/*
+	 * Retrieve
+	 * 
+	 * Retrieves a view.
+	 * 
+	 * Method: GET 
+	 * Url: http://drupal_instance/api_endpoint/views/{VIEW_NAME}
+	 * Headers: Content-Type:application/json
+	 * 
+	 * @param {String} view_name The name of the view to get., required:true, source:path
+	 * @param {String} display_id The display ID of the view to get., required:false, source:param
+	 * @param {Array} args A list of arguments to pass to the view., required:false, source:param
+	 * @param {Integer} offset The number of the entry for the page begin with., required:false, source:param
+	 * @param {Integer} limit The total number of entries to list., required:false, source:param
+	 * @param {Boolean} format_output Whether to return the raw data results or style the results., required:false, source:param
+	 * @param {Array} filters A list of filters to pass to the view. These are defined by the exposed filters on your view. Example call: /views/your_view?filters[nid]=12345, required:false, source:param
+	 * 
+	 * @return 	{Promise}
+	 * 
+	 * useage: ViewsResource.retrieve().success(yourSuccessCallback).error(yourErrorCallback);
+	*/
+	var retrieve = function(view_name, display_id, args, offset, limit, format_output, filters){
+		
+		var retrievePath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.views + view_name;
+		var defer = $q.defer();
+		
+		$http({
+			method :'POST',
+			url : retrievePath,
+			headers : {
+				"Accept" 		: "application/json",
+				"Content-Type"	: "application/json",
+			}
+		})
+		.success(function(data, status, headers, config){
+			defer.resolve(data);
+		})
+		.error(function(data, status, headers, config){
+			defer.reject(data);
+		});
+		
+		return defer.promise;
+
+	};
+
+	//public methods	
+	return {
+		retrieve : retrieve
+	};
+
+});
+
 
 
 
