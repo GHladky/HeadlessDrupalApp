@@ -244,6 +244,69 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
 */
 var drupalAPI = angular.module('drupalApi', ['config']);
 
+
+/**
+ * NodeResource
+ * 
+ * This service mirrors the Drupal node resource of the services 3.x module.
+ * To use this you have to set following line in your Drupal CORS module settings
+ * @TODO check
+ * your_api_endpoint/node/*|<mirror>|POST|Content-Type
+ * 
+**/
+drupalAPI.factory('ViewsResource', function($http, $q, drupalApiServiceConfig, UserResource) {
+	
+	/*
+	 * Retrieve
+	 * 
+	 * Retrieves a node.
+	 * 
+	 * Method: GET 
+	 * Url: http://drupal_instance/api_endpoint/node/{NID}
+	 * Headers: Content-Type:application/json
+	 * 
+	 * @param {Integer} nid The nid of the node to retrieve., required:true, source:path
+	 * 
+	 * @return 	{Promise}
+	 * 
+	 * useage: ViewsResource.retrieve().success(yourSuccessCallback).error(yourErrorCallback);
+	*/
+	var retrieve = function(nid){
+		
+		if(!(Number(nid)===nid && nid%1===0) ) 
+		{ return defer.reject({error: 'nid is no integer.'}); }
+
+		var retrievePath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.node + nid;
+		var defer = $q.defer();
+		
+		$http({
+			method :'POST',
+			url : retrievePath,
+			headers : {
+				"Accept" 		: "application/json",
+				"Content-Type"	: "application/json",
+			}
+		})
+		.success(function(data, status, headers, config){
+			defer.resolve(data);
+		})
+		.error(function(data, status, headers, config){
+			defer.reject(data);
+		});
+		
+		return defer.promise;
+
+	};
+
+	//public methods	
+	return {
+		retrieve : retrieve
+	};
+
+});
+
+
+
 /**
  * SystemResource
  * 
