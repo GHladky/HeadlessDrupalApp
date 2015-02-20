@@ -60,7 +60,7 @@ drupalApiService.constant("drupalApiServiceConfig", {
 				  //taxonomy_term	 		: 'taxonomy_term/',	
 				  //taxonomy_vocabulary 	: 'taxonomy_vocabulary/', 	
 				  user 					: 'user/',	
-				  //views 				: 'views/', 					
+				  views 				: 'views/', 					
 			  },
 			  // available formats of your service
 			  // drupal settings under [your.domain.org]/admin/structure/services/list/api/resources/[]
