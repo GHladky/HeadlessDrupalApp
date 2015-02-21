@@ -1,6 +1,6 @@
 /* Drupals api depending services*/
 //______________________________________________
-var drupalApiService = angular.module('drupalApiService', []);
+var drupalApiService = angular.module('drupalApiService', ['ngCookies']);
 
 /*localStorage helper*/
 drupalApiService.factory('$localstorage', ['$window', function ($window) {
@@ -55,7 +55,7 @@ drupalApiService.constant("drupalApiServiceConfig", {
 			  resources	: { 
 				  //comment 				: 'comment/', 	
 				  //file					: 'file/', 	
-				  //node	 				: 'node/',
+				  node	 				: 'node/',
 				  system				: 'system/',
 				  //taxonomy_term	 		: 'taxonomy_term/',	
 				  //taxonomy_vocabulary 	: 'taxonomy_vocabulary/', 	
@@ -246,6 +246,71 @@ var drupalAPI = angular.module('drupalApi', ['config']);
 
 
 /**
+ * AuthenticationService
+ * 
+ * groups actions for auth (headers ... )
+ * 
+ */
+drupalAPI.factory('AuthenticationService', function($rootScope, $http, $q, drupalApiServiceConfig, drupalApiNotificationChannel, $localstorage, $cookieStore) {
+	 //needed to use the $on method in the bleNotoficationChannel
+	//http://stackoverflow.com/questions/16477123/how-do-i-use-on-in-a-service-in-angular
+	var scope = $rootScope.$new(); // or $new(true) if you want an isolate scope
+	
+	var token = $localstorage.getItem('token') || '';
+	
+	if (token) {
+		$http.defaults.headers.common.Authorization = token;
+		$http.defaults.headers.post['X-CSRF-TOKEN'] = token;
+	}
+	
+	var storeAuthData = function (data, password) {
+		$localstorage.setItem('uid', data.user.uid);
+		$localstorage.setObject('user', data.user);
+		$localstorage.setItem('username', data.user.name);
+		$localstorage.setItem('password', password);
+		$localstorage.setItem('token', data.token);
+		$localstorage.setItem('sessid', data.sessid);
+		$localstorage.setItem('session_name', data.session_name);
+		$cookieStore.put(data.session_name, data.sessid);
+		$rootScope.isAuthed = true;
+	};
+	var deleteAuthData = function (data, password) {
+		//delete token
+		delete $http.defaults.headers.common.Authorization;
+		//delete cookies data
+		$cookieStore.remove($localstorage.getItem('session_name'));
+		//delete local storage data
+		$localstorage.removeItem('uid');
+		$localstorage.removeObject('user');
+		$localstorage.removeItem('username');
+		$localstorage.removeItem('password');
+		$localstorage.removeItem('token');
+		$localstorage.removeItem('sessid');
+		$localstorage.removeItem('session_name');
+		$rootScope.isAuthed = false;
+	};
+	
+	//
+	
+	
+	return {
+		storeAuthData : storeAuthData,
+		deleteAuthData : deleteAuthData,
+	}
+})
+.run(
+function($rootScope, AuthenticationService, drupalApiNotificationChannel, $http) {
+	console.log('AuthenticationService'); 	
+	var onUseLoginConfirmedHandler = function(data) {
+		console.log(data); 
+		$http.defaults.headers.common.Authorization = data.token;
+		$http.defaults.headers.post['X-CSRF-TOKEN'] = data.token;
+		$http.defaults.withCredentials = true;
+		AuthenticationService.storeAuthData(data);
+	};
+	drupalApiNotificationChannel.onUseLoginConfirmed($rootScope, onUseLoginConfirmedHandler);
+});
+/**
  * NodeResource
  * 
  * This service mirrors the Drupal node resource of the services 3.x module.
@@ -254,7 +319,7 @@ var drupalAPI = angular.module('drupalApi', ['config']);
  * your_api_endpoint/node/*|<mirror>|POST|Content-Type
  * 
 **/
-drupalAPI.factory('ViewsResource', function($http, $q, drupalApiServiceConfig, UserResource) {
+drupalAPI.factory('NodeResource', function($http, $q, drupalApiServiceConfig, drupalApiNotificationChannel) {
 	
 	/*
 	 * Retrieve
@@ -430,34 +495,8 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig, 
  * your_api_endpoint/user/*|<mirror>|GET, PUT, POST, DELETE|Content-Type,Authorization
  * 
 **/
-drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
-	
-	var storeLoginData = function (data) {
-		
-		$localstorage.setItem('uid', data.user.uid);
-        $localstorage.setObject('user', data.user);
-        $localstorage.setItem('username', username);
-        $localstorage.setItem('password', password);
-        $localstorage.setItem('token', data.token);
-        $localstorage.setItem('sessid', data.sessid);
-        $localstorage.setItem('session_name', data.session_name);
-        
-        $cookies[data.session_name] = data.sessid;
-	};
-	
-	var deleteLoginData = function () {
-		
-		$localstorage.setItem('uid', data.user.uid);
-        $localstorage.setObject('user', data.user);
-        $localstorage.setItem('username', username);
-        $localstorage.setItem('password', password);
-        $localstorage.setItem('token', data.token);
-        $localstorage.setItem('sessid', data.sessid);
-        $localstorage.setItem('session_name', data.session_name);
-        
-        $cookies[data.session_name] = data.sessid;
-	}
-	
+drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig, drupalApiNotificationChannel) {
+
 	/*
 	 * retrieve
 	 * 
@@ -468,7 +507,7 @@ drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
 	 * 
 	 * @param 	{Integer} uid The uid of the user to retrieve., required:true, source:path
 	 * 
-	 * @return 	{Promise}
+	 * @return 	{Promise} 
 	 * 
 	 * useage: UserResource.retrieve(username, password).then(yourSuccessCallback,yourErrorCallback);
 	 */
@@ -563,55 +602,42 @@ drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
 	 * @param 	{String} username A valid username, required:true, source:post body
 	 * @param 	{String} password A valid password, required:true, source:post body
 	 * 
-	 * @return 	{Promise}
+	 * @return 	{Promise} 
+	 * 			The revolve functions have a json obj. 
+	 * 				obj.sessid {String} The session id of the current authenticated user 
+	 * 				obj.session_name  {String} The session id of the current authenticated user 
+	 * 				obj.token {String} The X-CSRF-TOKEN @TODO 
+	 * 				obj.user: Object The user obj
+	 * 			The reject functions have a json obj. 
 	 * 
 	 * useage: UserResource.login(username, password).then(yourSuccessCallback,yourErrorCallback);
 	 */	
-	var login = function( username, password ) {
+	 var login = function( username, password ) {
 					
-		var defer = $q.defer();
-
-		$http({
-			method :'POST',
-			url : drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1 + drupalApiServiceConfig.resources.user + 'login',
-			headers : {
-				"Content-Type": "application/json"
+		var pathToLogin = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.user + 'login';
+			requestConfig = {
+					method :'POST',
+					url : pathToLogin,
+					 headers: {
+						//@TODO use the format of drupalApiServiceConfig
+						"Accept" 		: "application/json",
+						"Content-Type"	: "application/json",
+					 },
+					 data : {
+							"username" : username,
+							"password" : password
+					},
 			},
-			data : {
-				"username" : username,
-				"password" : password
-			},
+			defer = $q.defer();
 			
-		})
+		$http(requestConfig)
 		.success(function (data, status, headers, config) {
-             $http.defaults.headers.common.Authorization = data.token;
-             $http.defaults.headers.post['X-CSRF-TOKEN'] = data.token;
-             $http.defaults.withCredentials = true;
-             $http.defaults.headers.post['XSRF-TOKEN'] = data.token;
-            
-             var prevUserUid = $localstorage.getItem('uid') || '';
-             if (prevUserUid && (prevUserUid != data.user.uid)) {
-               $localstorage.removeItem('userSites' + prevUserUid);
-               $localstorage.removeItem('localData');
-             }
-
-             storeLoginData(data);
-             
-             authService.loginConfirmed(data, function (config) {
-               config.headers.Authorization = data.token;
-               return config;
-             });
-             defer.resolve(data);
+			 drupalApiNotificationChannel.publishUseLoginConfirmed(data);
+            defer.resolve(data);
          })
          .error(function (data, status, headers, config) {
-             $rootScope.$broadcast('event:auth-login-failed', status);
-             var error = "Login failed.";
-             if (status == 401) {
-               error = "Invalid Username or Password.";
-             } else if (status == 404) {
-               error = "Backend is not configured properly";
-         }
-         defer.reject(data);
+        	 drupalApiNotificationChannel.publishUseLoginFailed(data);
+        	 defer.reject(data);
          });
 		
 		return defer.promise;
@@ -630,20 +656,26 @@ drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
 	 * useage: UserResource.logout(username, password).then(yourSuccessCallback,yourErrorCallback);
 	 */
 	var logout = function() {
-		 var defer = $q.defer(),
-         pathToLogout = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api + drupalApiServiceConfig.resources.user_logout;
-
-		 $http({
-		   method: 'POST',
-		   withCredentials: true,
-		   url: pathToLogout,
-		 })
+		 var pathToLogout = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.user + 'logout';
+		 	 requestConfig = {
+		 			method: 'POST',
+					url : pathToLogout,
+					headers: {
+						//@TODO use the format of drupalApiServiceConfig
+						"Accept" 		: "application/json",
+						"Content-Type"	: "application/json",
+					},
+					withCredentials: true,
+			},
+			defer = $q.defer();
+		 
+		 $http(requestConfig)
          .success(function (data, status, headers, config) {
-           deleteAuthData();
-           $rootScope.$broadcast('event:auth-logout-complete');
+           drupalApiNotificationChannel.publishUseLogoutConfirmed(data);
            defer.resolve(data);
          })
          .error(function (data, status, headers, config) {
+           drupalApiNotificationChannel.publishUseLogoutFailed(data);
            defer.reject(data);
          });
          
@@ -665,7 +697,7 @@ drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
 	 */
 	var token = function() {
 		 var defer = $q.defer(),
-         pathToToken = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.resources.token;
+         pathToToken = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.user + 'token';
 
 	     $http({
 	       url: pathToToken,
@@ -718,23 +750,31 @@ drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig) {
 	 * useage: UserResource.login(account).then(yourSuccessCallback,yourErrorCallback);
 	 */
 	var register = function(account){
-		var defer = $q.defer();
-		$http({
-			method :'POST',
-			url : drupal_instance + api_endpoint + 'user/register',
-			headers : {
-				"Content-Type": "application/json"
-			},
-			data : {
-				name : username,
-				pass : password,
-				mail : email
-			},
-		})
+		
+		 var pathToRegister = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api + drupalApiServiceConfig.resources.register;
+	 	 	 requestConfig = {
+	 			method: 'POST',
+				url : pathToRegister,
+				headers: {
+					//@TODO use the format of drupalApiServiceConfig
+					"Accept" 		: "application/json",
+					"Content-Type"	: "application/json",
+				},
+				data : {
+					name : username,
+					pass : password,
+					mail : email
+				}
+	 	 	  },
+	 	 	  defer = $q.defer();
+		
+		$http(requestConfig)
 		.success(function(data, status, headers, config){
+			drupalApiNotificationChannel.publishUseRegisterConfirmed(data);
 			defer.resolve(data);
 		})
 		.error(function(data, status, headers, config){
+			drupalApiNotificationChannel.publishUseRegisterFailed(data);
 			defer.reject(data);
 		});
 		

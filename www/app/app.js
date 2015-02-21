@@ -133,29 +133,7 @@ headlessDrupalApp.config(
 		      }
 		    }
 	  })
-	  //States for the basic api tests page
-	  //______________________________________________
-	  .state('app.api.basictests', {
-	    url: '/basictests',
-	    views: {
-		      'apiContent': {
-		    	  templateUrl: 'app/components/api-services/firstBasicTests.html',
-		  		controller:  'firstBasicTestsApiServiceCtrl' 
-		      }
-		    }
-	   })
-	  //States for the ng-recource tests page
-	  //______________________________________________
-	   .state('app.api.ngrecource1', {
-	    url: '/ngrecource1',
-	    views: {
-		      'apiContent': {
-		    	templateUrl: 'app/components/api-services/ngRecource1.html',
-		  		controller:  'ngRecourceCtrl' 
-		      }
-		    }
-		
-	   })
+	 
 	   //States for the drupalAPI module tests page
 	  //______________________________________________
 	   .state('app.api.drupalRecources', {
