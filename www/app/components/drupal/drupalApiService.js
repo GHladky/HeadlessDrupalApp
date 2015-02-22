@@ -55,7 +55,7 @@ drupalApiService.constant("drupalApiServiceConfig", {
 			  resources	: { 
 				  //comment 				: 'comment/', 	
 				  //file					: 'file/', 	
-				  node	 				: 'node/',
+				  node	 				: 'node',
 				  system				: 'system/',
 				  //taxonomy_term	 		: 'taxonomy_term/',	
 				  //taxonomy_vocabulary 	: 'taxonomy_vocabulary/', 	
@@ -76,6 +76,12 @@ drupalApiService.constant("drupalApiServiceConfig", {
 	//
 	// Constants for drupalApiNotificationChannel
 	//
+	// Node resource
+	//
+	// Actions:
+	// Retrieve action
+	node_retrieveConfirmed	: 'event:drupal-node-retrieveConfirmed',
+	node_retrieveFailed  	: 'event:drupal-node-retrieveFailed',
 	
 	// System resource
 	//
@@ -96,6 +102,13 @@ drupalApiService.constant("drupalApiServiceConfig", {
 	// Logout action
 	use_logoutConfirmed  	: 'event:drupal-user-logoutConfirmed',
 	use_logoutFailed  		: 'event:drupal-user-logoutFailed',
+	
+	// Views resource
+	//
+	// Actions:
+	// Retrieve action
+	views_retrieveConfirmed	: 'event:drupal-views-retrieveConfirmed',
+	views_retrieveFailed  	: 'event:drupal-views-retrieveFailed',
 
 });
 
@@ -105,6 +118,34 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
                                                  function ($rootScope,   drupalApiServiceConfig) {
    
 	//
+	// Node resource
+	//
+	
+	// Retrieve Action
+	
+	// Publish node retrieve confirmed event
+    var publishNodeRetrieveConfirmed = function (node) {
+        $rootScope.$broadcast(drupalApiServiceConfig.node_retrieveConfirmed, {node: node});
+    };
+    // Subscribe to node retrieve confirmed event
+    var onNodeRetrieveConfirmed = function($scope, handler) {
+    	$scope.$on(drupalApiServiceConfig.node_retrieveConfirmed, function(event, args) {
+	    handler(args.node);
+	   });	
+    };
+    
+	// Publish node retrieve failed event
+    var publishNodeRetrieveFailed = function (error) {
+        $rootScope.$broadcast(drupalApiServiceConfig.node_retrieveFailed, {error: error});
+    };
+    // Subscribe to node retrieve failed event
+    var onNodeRetrieveFailed = function($scope, handler) {
+    	$scope.$on(drupalApiServiceConfig.node_retrieveFailed, function(event, args) {
+	    handler(args.error);
+	   });	
+    };
+	
+	//
 	// System resource
 	//
 	
@@ -112,23 +153,23 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
 	
 	// Publish system connect confirmed event
     var publishSystemConnectConfirmed = function (user) {
-        $rootScope.$broadcast(drupalApiServiceConfig.systemConnectConfirmed, {user: user});
+        $rootScope.$broadcast(drupalApiServiceConfig.system_connectConfirmed, {user: user});
     };
     // Subscribe to system connect confirmed event
     var onSystemConnectConfirmed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.systemConnectConfirmed, function(event, args) {
+    	$scope.$on(drupalApiServiceConfig.system_connectConfirmed, function(event, args) {
 	    handler(args.user);
 	   });	
     };
     
     // Publish system connect failed event
     var publishSystemConnectFailed = function (response) {
-        $rootScope.$broadcast(drupalApiServiceConfig.systemConnectConfirmed, {response: response});
+        $rootScope.$broadcast(drupalApiServiceConfig.system_connectConfirmed, {error: error});
     };
     // Subscribe to system connect failed event
     var onSystemConnectFailed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.systemConnectConfirmed, function(event, args) {
-	    handler(args.response);
+    	$scope.$on(drupalApiServiceConfig.system_connectConfirmed, function(event, args) {
+	    handler(args.error);
 	   });	
     };
     
@@ -140,23 +181,23 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
 
 	// Publish user register confirmed event
     var publishUseRegisterConfirmed = function (respons) {
-        $rootScope.$broadcast(drupalApiServiceConfig.userRegisterConfirmed, {respons: respons});
+        $rootScope.$broadcast(drupalApiServiceConfig.user_registerConfirmed, {respons: respons});
     };
     // Subscribe to user register confirmed event
     var onUseRegisterConfirmed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.userRegisterConfirmed, function(event, args) {
+    	$scope.$on(drupalApiServiceConfig.user_registerConfirmed, function(event, args) {
 	    handler(args.user);
 	   });	
     };
     
     // Publish user register failed event
-    var publishUseRegisterFailed = function (respons) {
-        $rootScope.$broadcast(drupalApiServiceConfig.userRegisterFailed, {respons: respons});
+    var publishUseRegisterFailed = function (error) {
+        $rootScope.$broadcast(drupalApiServiceConfig.user_registerFailed, {error: error});
     };
     // Subscribe to user register failed event
     var onUseRegisterFailed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.userRegisterFailed, function(event, args) {
-	    handler(args.respons);
+    	$scope.$on(drupalApiServiceConfig.user_registerFailed, function(event, args) {
+	    handler(args.error);
 	   });	
     };
     
@@ -164,23 +205,23 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
     
 	// Publish user login confirmed event
     var publishUseLoginConfirmed = function (user) {
-        $rootScope.$broadcast(drupalApiServiceConfig.userLoginConfirmed, {user: user});
+        $rootScope.$broadcast(drupalApiServiceConfig.user_loginConfirmed, {user: user});
     };
     // Subscribe to user login confirmed event
     var onUseLoginConfirmed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.userLoginConfirmed, function(event, args) {
+    	$scope.$on(drupalApiServiceConfig.user_loginConfirmed, function(event, args) {
 	    handler(args.user);
 	   });	
     };
     
     // Publish user login failed event
     var publishUseLoginFailed = function (respons) {
-        $rootScope.$broadcast(drupalApiServiceConfig.userLoginFailed, {respons: respons});
+        $rootScope.$broadcast(drupalApiServiceConfig.user_loginFailed, {error: error});
     };
     // Subscribe to user login failed event
     var onUseLoginFailed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.userLoginFailed, function(event, args) {
-	    handler(args.respons);
+    	$scope.$on(drupalApiServiceConfig.user_loginFailed, function(event, args) {
+	    handler(args.error);
 	   });	
     };
     
@@ -188,30 +229,63 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
     
 	// Publish user login confirmed event
     var publishUseLogoutConfirmed = function (user) {
-        $rootScope.$broadcast(drupalApiServiceConfig.userLogoutConfirmed, {user: user});
+        $rootScope.$broadcast(drupalApiServiceConfig.user_logoutConfirmed, {user: user});
     };
     // Subscribe to user login confirmed event
     var onUseLogoutConfirmed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.userLogoutConfirmed, function(event, args) {
+    	$scope.$on(drupalApiServiceConfig.user_logoutConfirmed, function(event, args) {
 	    handler(args.user);
 	   });	
     };
     
     // Publish user login failed event
     var publishUseLogoutFailed = function (respons) {
-        $rootScope.$broadcast(drupalApiServiceConfig.userLogoutFailed, {respons: respons});
+        $rootScope.$broadcast(drupalApiServiceConfig.user_logoutFailed, {error: error});
     };
     // Subscribe to user login failed event
     var onUseLogoutFailed = function($scope, handler) {
-    	$scope.$on(drupalApiServiceConfig.userLogoutFailed, function(event, args) {
-	    handler(args.respons);
+    	$scope.$on(drupalApiServiceConfig.user_logoutFailed, function(event, args) {
+	    handler(args.error);
 	   });	
     };
     
+    //
+	// Views resource
+	//
+	
+	// Retrieve Action
+	
+	// Publish views retrieve confirmed event
+    var publishViewsRetrieveConfirmed = function (viewData) {
+        $rootScope.$broadcast(drupalApiServiceConfig.views_retrieveConfirmed, {viewData: viewData});
+    };
+    // Subscribe to views retrieve confirmed event
+    var onViewsRetrieveConfirmed = function($scope, handler) {
+    	$scope.$on(drupalApiServiceConfig.views_retrieveConfirmed, function(event, args) {
+	    handler(args.viewData);
+	   });	
+    };
     
-    
+	// Publish views retrieve failed event
+    var publishViewsRetrieveFailed = function (error) {
+        $rootScope.$broadcast(drupalApiServiceConfig.views_retrieveFailed, {error: error});
+    };
+    // Subscribe to views retrieve failed event
+    var onViewsRetrieveFailed = function($scope, handler) {
+    	$scope.$on(drupalApiServiceConfig.views_retrieveFailed, function(event, args) {
+	    handler(args.error);
+	   });	
+    };
+        
    // Return the publicly accessible methods
    return {
+	   //Node events
+	   //Retrieve event
+	   publishNodeRetrieveConfirmed		: publishNodeRetrieveConfirmed,
+	   onNodeRetrieveConfirmed			: onNodeRetrieveConfirmed,
+	   publishNodeRetrieveFailed		: publishNodeRetrieveFailed,
+	   onNodeRetrieveFailed 			: onNodeRetrieveFailed,
+	   
 	   // System events
 	   // Connect events
 	   publishSystemConnectConfirmed 	: publishSystemConnectConfirmed,
@@ -236,6 +310,12 @@ drupalApiService.factory('drupalApiNotificationChannel', ['$rootScope', 'drupalA
 	   publishUseLogoutFailed			: publishUseLogoutFailed,
 	   onUseLogoutFailed				: onUseLogoutFailed,
 	   
+	   //Views events
+	   //Retrieve event
+	   publishViewsRetrieveConfirmed 	: publishViewsRetrieveConfirmed,
+	   onViewsRetrieveConfirmed 		: onViewsRetrieveConfirmed,
+	   publishViewsRetrieveFailed		: publishViewsRetrieveFailed,
+	   onViewsRetrieveFailed			: onViewsRetrieveFailed,
    	};
 }]);
 
@@ -301,6 +381,7 @@ drupalAPI.factory('AuthenticationService', function($rootScope, $http, $q, drupa
 .run(
 function($rootScope, AuthenticationService, drupalApiNotificationChannel, $http) {
 	console.log('AuthenticationService'); 	
+	
 	var onUseLoginConfirmedHandler = function(data) {
 		console.log(data); 
 		$http.defaults.headers.common.Authorization = data.token;
@@ -309,7 +390,10 @@ function($rootScope, AuthenticationService, drupalApiNotificationChannel, $http)
 		AuthenticationService.storeAuthData(data);
 	};
 	drupalApiNotificationChannel.onUseLoginConfirmed($rootScope, onUseLoginConfirmedHandler);
+	
 });
+
+
 /**
  * NodeResource
  * 
@@ -322,9 +406,56 @@ function($rootScope, AuthenticationService, drupalApiNotificationChannel, $http)
 drupalAPI.factory('NodeResource', function($http, $q, drupalApiServiceConfig, drupalApiNotificationChannel) {
 	
 	/*
+	 * getPreparedIndexParams
+	 * */
+	var getPreparedIndexParams = function(page, fields, parameters, pagesize) {
+		
+		var preparedIndexParams = '',
+			colon = '&';
+		
+		//Prepare page param
+		page = (page)?page:false;
+		if(page !== false) { page = (parseInt(page) != NaN)?parseInt(page):false; }
+		if(page !== false) { preparedIndexParams = preparedIndexParams + ( (preparedIndexParams !== '')?colon:'') +  "page="+page; }
+		
+		
+		//Prepare fields param
+		fields = (fields)?fields:false;
+		if(fields !== false) {
+			//parse array
+			//@TODO parse array to get params or set false
+		}
+		if(fields !== false) { 
+			preparedIndexParams = preparedIndexParams + ( (preparedIndexParams !== '')?colon:'') + fields;
+		}
+		
+		//Prepare parameters param
+		parameters = (parameters)?parameters:false;
+		if(parameters !== false) {
+			//parse array
+			//@TODO parse array to get params or set false
+		}
+		if(parameters !== false) { 
+			preparedIndexParams = preparedIndexParams + ( (preparedIndexParams !== '')?colon:'') + parameters;
+		}
+		
+		//Prepare pagesize param
+		pagesize = (pagesize)?pagesize:false;
+		if(pagesize !== false) { pagesize = (parseInt(pagesize) != NaN)?parseInt(pagesize):false; }
+		if(pagesize !== false) { preparedIndexParams = preparedIndexParams + ( (preparedIndexParams !== '')?colon:'') +  "pagesize="+pagesize; }
+		
+		return preparedIndexParams;
+	}
+	
+	/*
+	 * 
 	 * Retrieve
 	 * 
-	 * Retrieves a node.
+	 * Drupal CORS settings: 
+	 * "api_endpoint/node/*|<mirror>|GET|Content-Type"
+	 *  Note: . 
+	 * 
+	 * Retrieves a single node.
 	 * 
 	 * Method: GET 
 	 * Url: http://drupal_instance/api_endpoint/node/{NID}
@@ -334,24 +465,64 @@ drupalAPI.factory('NodeResource', function($http, $q, drupalApiServiceConfig, dr
 	 * 
 	 * @return 	{Promise}
 	 * 
-	 * useage: ViewsResource.retrieve().success(yourSuccessCallback).error(yourErrorCallback);
+	 * useage: NodeResource.retrieve().success(yourSuccessCallback).error(yourErrorCallback);
 	*/
 	var retrieve = function(nid){
-		
-		if(!(Number(nid)===nid && nid%1===0) ) 
-		{ return defer.reject({error: 'nid is no integer.'}); }
 
-		var retrievePath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.node + nid;
-		var defer = $q.defer();
+		var retrievePath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.node + (nid?'/'+nid:''),
+			defer = $q.defer(),
+			requestConfig = {
+				method :'GET',
+				url : retrievePath,
+			};
 		
-		$http({
-			method :'POST',
-			url : retrievePath,
-			headers : {
-				"Accept" 		: "application/json",
-				"Content-Type"	: "application/json",
-			}
-		})
+		if(!nid) { defer.reject(['Param nid is required.']); }
+		else {
+			$http(requestConfig)
+			.success(function(data, status, headers, config){
+				defer.resolve(data);
+			})
+			.error(function(data, status, headers, config){
+				defer.reject(data);
+			});
+		}
+		return defer.promise;
+
+	};
+	
+	/*
+	 * Index
+	 * Drupal CORS settings api_endpoint/node*|<mirror>|GET|Content-Type
+	 * Note: Also retrieve action is allowed with this setting. 
+	 * 
+	 * List all nodes. 
+	 * 
+	 * Method: GET 
+	 * Url: http://drupal_instance/api_endpoint/node
+	 * Headers: Content-Type:application/json
+	 * 
+	 * @param {Integer} page The zero-based index of the page to get, defaults to 0., required:false, source:param
+	 *@TODO find link to drupal docs of possible values 
+	 * @param {Array} fields The fields to get., defaults to 0., required:false, source:param
+	 *@TODO find link to drupal docs of possible values 
+	 * @param {Array} parameters Parameters array, required:false, source:param
+	 * @param {Integer} pagesize Number of records to get per page. For unauthorized users 25 is maximum., required:false, source:param
+	 * 
+	 * @return 	{Promise}
+	 * 
+	 * useage: NodeResource.index().success(yourSuccessCallback(data)).error(yourErrorCallback(error));
+	 */
+	var index = function(page, fields, parameters, pagesize) {
+		
+		var IndexParams = getPreparedIndexParams(page, fields, parameters, pagesize),
+			retrievePath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.node + (IndexParams?'?'+IndexParams:''),
+			defer = $q.defer(),
+			requestConfig = {
+				method :'GET',
+				url : retrievePath,
+			};
+		
+		$http(requestConfig)
 		.success(function(data, status, headers, config){
 			defer.resolve(data);
 		})
@@ -365,12 +536,11 @@ drupalAPI.factory('NodeResource', function($http, $q, drupalApiServiceConfig, dr
 
 	//public methods	
 	return {
-		retrieve : retrieve
+		retrieve : retrieve,
+		index	 : index
 	};
 
 });
-
-
 
 /**
  * SystemResource
@@ -398,9 +568,6 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig, 
 	var connect = function(){
 		var connectPath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.system + 'connect';
 		var defer = $q.defer();
-		
-		//set new token to headers
-		UserResource.token();
 		
 		$http({
 			method :'POST',

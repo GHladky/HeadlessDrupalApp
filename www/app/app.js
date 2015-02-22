@@ -6,7 +6,11 @@ var headlessDrupalApp = angular.module('headlessDrupalApp', [ 'ionic',
                                                           //global modules
                                                          'ngMessages',
 														  //components
-														  'overviewControllers', 'networkControllers',  'formControllers', 'apiServicesControllers'
+														  'overviewControllers', 'networkControllers',  'formControllers', 
+														  
+														  'nodeResourceControllers',
+														  'systemResourceControllers',
+														  'userResourceControllers',
 														]);
 	    
 headlessDrupalApp.run(function($ionicPlatform ) {
@@ -129,29 +133,46 @@ headlessDrupalApp.config(
 	    abstract: true,
 	    views: {
 		      'mainContent': {
-		    	template : '<ion-nav-view name="apiContent"></ion-nav-view>',
+		    	templateUrl: 'app/components/api-services/tabs.html',
 		      }
 		    }
 	  })
 	 
-	   //States for the drupalAPI module tests page
+	  //Node Resource
 	  //______________________________________________
-	   .state('app.api.drupalRecources', {
-	    url: '/drupalRecources',
+	   .state('app.api.nodeRecource', {
+	    url: '/nodeRecource',
 	    views: {
-		      'apiContent': {
-		    	templateUrl: 'app/components/api-services/drupalResourcesTest.html',
-		  		controller:  'drupalResourcesTestsCtrl' 
+		      'node-resource': {
+		    	templateUrl: 'app/components/api-services/node-resource/nodeResource.html',
+		  		controller:  'nodeResourceController' 
 		      }
 		    }
-		
 	   })
-	  
 	   
-	  
+	  //System Resource
+	  //______________________________________________
+	   .state('app.api.systemRecource', {
+	    url: '/systemRecource',
+	    views: {
+		      'system-resource': {
+		    	templateUrl: 'app/components/api-services/system-resource/systemResource.html',
+		  		controller:  'systemResourceController' 
+		      }
+		    }
+	   })
 	   
-	  
-	  ;
+	   //User Resource
+	   //______________________________________________
+	   .state('app.api.userRecource', {
+	    url: '/userRecource',
+	    views: {
+		      'user-resource': {
+		    	templateUrl: 'app/components/api-services/user-resource/userResource.html',
+		  		controller:  'userResourceController' 
+		      }
+		    }
+	   });
 
 }]);
 
