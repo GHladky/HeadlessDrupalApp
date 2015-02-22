@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry excluding="hooks/after_platform_add/|platforms/android/assets/www/|platforms/android/assets/www/lib/angular-sanitize/|plugins/org.apache.cordova.device/src/blackberry10/|hooks/after_plugin_rm/|platforms/android/cordova/node_modules/which/|plugins/org.apache.cordova.device/src/browser/|plugins/com.ionic.keyboard/www/|platforms/android/assets/www/app/components/drupal/|platforms/android/assets/www/lib/ionic/js/|www/lib/angular-animate/|hooks/after_prepare/|platforms/android/cordova/node_modules/q/|platforms/android/cordova/node_modules/q/benchmark/|www/lib/angular/|www/app/components/drupal/|platforms/android/assets/www/lib/ngCordova/dist/|platforms/android/assets/www/lib/angular/|platforms/android/assets/www/lib/angular-ui-router/src/|www/lib/angular-ui-router/src/|plugins/org.apache.cordova.device/src/ubuntu/|platforms/android/assets/www/lib/angular-ui-router/release/|www/app/components/network/|platforms/android/cordova/lib/|platforms/android/cordova/node_modules/shelljs/|hooks/after_plugin_add/|platforms/android/cordova/node_modules/shelljs/src/|www/app/components/api-services/|hooks/before_platform_add/|plugins/org.apache.cordova.console/www/|platforms/android/cordova/node_modules/shelljs/scripts/|platforms/android/assets/www/app/|platforms/android/assets/www/lib/angular-animate/|platforms/android/assets/www/plugins/com.ionic.keyboard/www/|www/lib/angular-messages/|plugins/org.apache.cordova.device/src/windows8/|www/lib/angular-ui-router/release/|www/app/|plugins/org.apache.cordova.device/src/windows/|www/lib/angular-sanitize/|www/app/components/overview/|www/lib/ionic/js/|plugins/org.apache.cordova.device/src/firefoxos/|platforms/android/assets/www/app/components/calendar/|www/lib/ngCordova/dist/|plugins/org.apache.cordova.device/www/|plugins/org.apache.cordova.device/tests/|plugins/org.apache.cordova.device/src/tizen/|platforms/android/assets/www/plugins/org.apache.cordova.device/www/|www/lib/angular-cookies/|platforms/android/platform_www/|www/app/components/forms/" kind="src" path=""/>
+	<classpathentry kind="src" path="hooks/after_platform_add"/>
+	<classpathentry kind="src" path="hooks/after_plugin_add"/>
+	<classpathentry kind="src" path="hooks/after_plugin_rm"/>
+	<classpathentry kind="src" path="hooks/after_prepare"/>
+	<classpathentry kind="src" path="hooks/before_platform_add"/>
+	<classpathentry excluding="lib/angular-sanitize/|app/components/drupal/|lib/ionic/js/|lib/ngCordova/dist/|lib/angular/|lib/angular-ui-router/src/|lib/angular-ui-router/release/|app/|lib/angular-animate/|plugins/com.ionic.keyboard/www/|app/components/calendar/|plugins/org.apache.cordova.device/www/" kind="src" path="platforms/android/assets/www"/>
+	<classpathentry excluding="components/drupal/|components/calendar/" kind="src" path="platforms/android/assets/www/app"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/app/components/calendar"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/app/components/drupal"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/angular"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/angular-animate"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/angular-sanitize"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/angular-ui-router/release"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/angular-ui-router/src"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/ionic/js"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/lib/ngCordova/dist"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/plugins/com.ionic.keyboard/www"/>
+	<classpathentry kind="src" path="platforms/android/assets/www/plugins/org.apache.cordova.device/www"/>
+	<classpathentry kind="src" path="platforms/android/cordova/lib"/>
+	<classpathentry excluding="benchmark/" kind="src" path="platforms/android/cordova/node_modules/q"/>
+	<classpathentry kind="src" path="platforms/android/cordova/node_modules/q/benchmark"/>
+	<classpathentry excluding="src/|scripts/" kind="src" path="platforms/android/cordova/node_modules/shelljs"/>
+	<classpathentry kind="src" path="platforms/android/cordova/node_modules/shelljs/scripts"/>
+	<classpathentry kind="src" path="platforms/android/cordova/node_modules/shelljs/src"/>
+	<classpathentry kind="src" path="platforms/android/cordova/node_modules/which"/>
+	<classpathentry kind="src" path="platforms/android/platform_www"/>
+	<classpathentry kind="src" path="plugins/com.ionic.keyboard/www"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.console/www"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/blackberry10"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/browser"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/firefoxos"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/tizen"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/ubuntu"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/windows"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/src/windows8"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/tests"/>
+	<classpathentry kind="src" path="plugins/org.apache.cordova.device/www"/>
+	<classpathentry excluding="components/drupal/|components/network/|components/api-services/|components/overview/|components/forms/" kind="src" path="www/app"/>
+	<classpathentry kind="src" path="www/app/components/api-services"/>
+	<classpathentry kind="src" path="www/app/components/drupal"/>
+	<classpathentry kind="src" path="www/app/components/forms"/>
+	<classpathentry kind="src" path="www/app/components/network"/>
+	<classpathentry kind="src" path="www/app/components/overview"/>
+	<classpathentry kind="src" path="www/lib/angular"/>
+	<classpathentry kind="src" path="www/lib/angular-animate"/>
+	<classpathentry kind="src" path="www/lib/angular-cookies"/>
+	<classpathentry kind="src" path="www/lib/angular-messages"/>
+	<classpathentry kind="src" path="www/lib/angular-sanitize"/>
+	<classpathentry kind="src" path="www/lib/angular-ui-router/release"/>
+	<classpathentry kind="src" path="www/lib/angular-ui-router/src"/>
+	<classpathentry kind="src" path="www/lib/ionic/js"/>
+	<classpathentry kind="src" path="www/lib/ngCordova/dist"/>
+	<classpathentry kind="con" path="org.eclipse.wst.jsdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path=""/>
+</classpath>
