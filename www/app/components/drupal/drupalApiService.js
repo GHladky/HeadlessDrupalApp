@@ -344,6 +344,7 @@ drupalAPI.factory('AuthenticationService', function($rootScope, $http, $q, drupa
 	}
 	
 	var storeAuthData = function (data, password) {
+		console.log('storeAuthData');
 		$localstorage.setItem('uid', data.user.uid);
 		$localstorage.setObject('user', data.user);
 		$localstorage.setItem('username', data.user.name);
@@ -392,6 +393,48 @@ function($rootScope, AuthenticationService, drupalApiNotificationChannel, $http)
 	drupalApiNotificationChannel.onUseLoginConfirmed($rootScope, onUseLoginConfirmedHandler);
 	
 });
+
+/**
+ * Session
+ * 
+ */
+ drupalAPI.factory('SessionResource', function($http, $q, drupalApiServiceConfig, drupalApiNotificationChannel) {
+		
+		/*
+		 * 
+		 * Token
+		 * 
+		 * Drupal CORS settings: 
+		 * "services/session/token|<mirror>|POST, GET|Content-Type,Authorization,X-CSRF-TOKEN|true
+		*/
+		var token = function(nid){
+
+			var tokenPath = drupalApiServiceConfig.drupal_instance + 'services/session/token',
+				defer = $q.defer(),
+				requestConfig = {
+					method :'GET',
+					url : tokenPath,
+	                withCredentials: true
+				};
+			
+			$http(requestConfig)
+			.success(function(data, status, headers, config){
+				defer.resolve(data);
+			})
+			.error(function(data, status, headers, config){
+				defer.reject(data);
+			});
+	
+			return defer.promise;
+
+		};
+
+		//public methods	
+		return {
+			token : token,
+		};
+
+	});
 
 
 /**
@@ -565,7 +608,7 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig, 
 	 * 
 	 * useage: SystemResource.connect().success(yourSuccessCallback).error(yourErrorCallback);
 	*/
-	var connect = function(){
+	var connect = function(token){
 		var connectPath = drupalApiServiceConfig.drupal_instance + drupalApiServiceConfig.api_endpoints.api_v1.path + drupalApiServiceConfig.api_endpoints.api_v1.resources.system + 'connect';
 		var defer = $q.defer();
 		
@@ -662,7 +705,7 @@ drupalAPI.factory('SystemResource', function($http, $q, drupalApiServiceConfig, 
  * your_api_endpoint/user/*|<mirror>|GET, PUT, POST, DELETE|Content-Type,Authorization
  * 
 **/
-drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig, drupalApiNotificationChannel) {
+drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig, $localstorage, drupalApiNotificationChannel) {
 
 	/*
 	 * retrieve
@@ -799,6 +842,11 @@ drupalAPI.factory('UserResource', function($http, $q, drupalApiServiceConfig, dr
 			
 		$http(requestConfig)
 		.success(function (data, status, headers, config) {
+			 //persist token in header
+			 $http.defaults.headers.common.Authorization = data.token;
+             $http.defaults.headers.post['X-CSRF-TOKEN'] = data.token;
+             $http.defaults.withCredentials = true;
+                         
 			 drupalApiNotificationChannel.publishUseLoginConfirmed(data);
             defer.resolve(data);
          })

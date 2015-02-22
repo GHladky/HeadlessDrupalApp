@@ -6,8 +6,8 @@ var systemResourceControllers = angular.module('systemResourceControllers', ['dr
 
 /* System Resource Controller */
 systemResourceControllers.controller('systemResourceController', 
-		   ['$scope', 'SystemResource', 'drupalApiNotificationChannel', 
-    function($scope,   SystemResource,   drupalApiNotificationChannel) {
+		   ['$scope', 'SystemResource', 'UserResource', 'SessionResource', 'drupalApiNotificationChannel', 
+    function($scope,   SystemResource,   UserResource,   SessionResource,   drupalApiNotificationChannel) {
 			   
 			   //
 			   //SystemResource
@@ -19,19 +19,28 @@ systemResourceControllers.controller('systemResourceController',
 						console.log('callSystemRecourceConncet'); 
 						$scope.lastTimeRequestToSystemConnect = Date.now();
 						
-						SystemResource.connect()
-					    .then(
-					    		//success
-					    		function(data) {
-					    			console.log('success');
-					    			$scope.lastResultRequestToSystemConnect = data;
-					    		},
-					    		//error
-					    		function(data) {
-					    			console.log('error');
-					    			$scope.lastResultRequestToSystemConnect = data;
-					    		}
-					    );
+						SessionResource.token().then(
+						function(token){
+							console.log(token); 
+							SystemResource.connect(token)
+						    .then(
+						    		//success
+						    		function(data) {
+						    			console.log('success');
+						    			$scope.lastResultRequestToSystemConnect = data;
+						    		},
+						    		//error
+						    		function(data) {
+						    			console.log('error');
+						    			$scope.lastResultRequestToSystemConnect = data;
+						    		}
+						    );
+						},
+						function(){
+							
+						});
+						
+						
 			   };
 }]);
 
